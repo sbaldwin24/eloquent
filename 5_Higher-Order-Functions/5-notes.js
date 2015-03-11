@@ -81,9 +81,3 @@ total; // Returns 60
 // Reduce is the least obvious of the iterative array methods. They should be used for algorithms that combine two values recursively
 // to reduce a sequence down to a single value.
 
-
-
-
-
-
-
