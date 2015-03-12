@@ -11,7 +11,7 @@ function Dog(name, breed, color, sex) {
     this.sex = sex;
 }
 
-theDog = new Dog("Eddie", "Jack Russel Terrior", "White and Orange", "Male");
+theDog = new Dog("Eddie", "Jack Russel Terrier", "White and Orange", "Male");
 
 // If we call the toString() method on this custom object, it returns the default value inherited from Object:
 theDog.toString(); // returns [object Object]
@@ -25,5 +25,5 @@ Dog.prototype.toString = function dogToString() {
 }
 // With the preceding code in place, any time theDog is used in a string context, JavaScript automatically calls the dogToString()
 // function, which returns the following string:
-Dog Eddie is a Male White and Orange Jack Russel Terrior
+Dog Eddie is a Male White and Orange Jack Russel Terrier
 
