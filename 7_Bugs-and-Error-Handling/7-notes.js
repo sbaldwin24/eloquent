@@ -65,10 +65,50 @@ promptNumber("What is your favorite number?"); // User input... orange
 // Exceptions are a mechanism that make it possible for code that runs into a problem to raise (or 'throw') an exception, which is simply
 // a value. Raising an exception somewhat resembles a super-charged return from a function: it jumps out of not just the current function
 // but also out of its callers, all the way down to the first call that started the current execution.
-// This is called 'unwinding the stack'. An exception zooms down this stack, throwing away all the call contexts it encounters.
+// This is called 'unwinding the stack'.
+// An exception zooms down this stack, throwing away all the call contexts it encounters.
 // If exceptions always zoomed right down to the bottom of the stack, they would not be of much use. They would just provide a novel
 // way to blow up your program. Their power lies in the fact that you can set "obstacles" along the stack to catch the exception as
 // it is zooming down. Then you can do something with it, after which the program continues running at the point where the exception
 // was caught.
+// Here is an example:
+function promptDirection(question) {
+  "use strict";
+  var result = prompt(question, "");
+  if (result.toLowerCase() == "left") {
+    return "L";
+  } else if (result.toLowerCase() == "right") {
+    return "R";
+  } else {
+    throw new Error("Invalid direction: " + result);
+  }
+}
 
+function look() {
+  if (promptDirection("Which way?") == "L") {
+    return "a house";
+  } else {
+    return "two angry bears";
+  }
+}
+
+try {
+  console.log("You see", look());
+} catch(error) {
+  console.log("Something went wrong: " + error);
+}
+
+
+// Throw Statement
+// The throw statement throws a user-defined exception. Execution of the current function will stop(the statements after throw won't be
+// executed), and a control will be passed to the first catch block in the call stack. If not catch block exists among caller functions,
+// the program will terminate.
+// Throw Syntax
+throw expression;
+// expression - the expression to throw.
+// Use the throw statement to throw an exception. When you throw an exception, expression specifies the value of the exception.
+// Each of the following throws an exception.
+throw "Error2"; // generates an exception with a string value
+throw 42; // generates an exception with the value 42
+throw true; // generates an exception with value target
 
