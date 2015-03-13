@@ -98,6 +98,24 @@ try {
   console.log("Something went wrong: " + error);
 }
 
+// The "throw" keyword is used to raise an exception. Catching one is done by wrapping a piece of code in a "try" block, followed by
+// the keyword "catch".
+// When the code in the "try" block causes an exception to be raised, the "catch" block is evaluated.
+// The variable name (in parentheses) after "catch" will be bound to the exception value.
+// After the "catch" block finishes -- or if the "try" block finishes without problems -- control proceeds beneath the entire
+// "try"/"catch" statement.
+
+// In the following example, we used the "Error" constructor to create our exception value.
+// The "Error" constructor is a standard JavaScript constructor that creates an object with a message property.
+// In moder JavaScript environments, instances of the "Error" constructor also gather information about the call stack that existed when
+// the exception was created, a so called "stack trace". This information is stored in the stack property and can be helpful when trying
+// to debug a problem: it tells us the precise function where the problem occurred and which other functions led up to the call that
+// failed.
+// -- NOTE -- that the function look completely ignores the possibility that promptDirection might go wrong. This is the big advantage
+// -- NOTE -- of exceptions -> error-handling code is necessary only at the point where the error occurs at the point where it is handled
+// -- NOTE -- The functions in between can forget all about it.
+
+
 
 // Throw Statement
 // The throw statement throws a user-defined exception. Execution of the current function will stop(the statements after throw won't be
