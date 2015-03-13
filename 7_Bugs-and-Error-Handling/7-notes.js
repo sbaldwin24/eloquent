@@ -115,6 +115,66 @@ try {
 // -- NOTE -- of exceptions -> error-handling code is necessary only at the point where the error occurs at the point where it is handled
 // -- NOTE -- The functions in between can forget all about it.
 
+// Cleaning up after exceptions
+// There is one more feature that "try" statements have. They may be followed by a "finally" block either instead of or in addition to a
+// a "catch" block. A "finally" block means "No matter what happens, run this code after trying to run the code in the "try" block".
+// If a function has to clean something up, the cleanup code should usually be put into the "finally" block.
+
+// Selective Catching
+// When an exception makes it all the way to the bottom of the stack without being caught, it gets handled by the environment. What this
+// means differs between environments. In browsers, a description of the error typically gets written to the JavaScript console.
+// For programming mistakes or problems that the program cannot possibly handle, just letting the error go through is often okay.
+// An unhandled exception is a reasonable way to signal a broken program, and the JavaScript console will, provide you with some
+// about information about which function calls were on the stack when problem occurred.
+
+// When a "catch" body is entered, all we know is that something in our "try" body caused an exception. But we don't know what, or which
+// exception it caused.
+// JavaScript does not provide direct support for selectively catching exceptions: either you catch them all or you don't catch any.
+// This makes it very easy to assume that exception you get is the one you were thinking about when you wrote the catch block.
+// But it might not be. Some other assumptions might be violated, or you might have introduced a bug somewhere that is causing an
+// exception.
+// Here is an example, which attempts to keep on calling promptDirection until it gets a valid answer:
+for (;;) {
+  try {
+    var dir = promtDirection("Where?") // <- typo!
+    console.log("You chose ", dir);
+    break;
+  } catch(e) {
+    console.log("Not a valid direction. Try again.");
+  }
+}
+// The for(;;) construct is a way to intentionally create a loop that doesn't terminate on its own.
+// We break out of the loop only when a valid direction is given. But we misspelled "promptDirection", which will result in an
+// "undefined variable" error. Because the "catch" block completely ignores its exception value (e), assuming it knows what the problem
+// is, it wrongly treats the variable error as indicating bad input. Not only does this cause an infinite loop, but it also "buries" the
+// useful error message about the misspelled variable.
+
+
+// Assertions
+// Assertions are a tool to do basic sanity checking for programmer errors.
+// Consider this helper function, assert:
+function AssertionFailed(message) {
+  this.message = message;
+}
+AssertionFailed.prototype = Object.create(Error.prototype);
+
+function assert(test, message) {
+  if (!test) {
+    throw new AssertionFailed(message);
+  }
+}
+
+function lastElement(array) {
+  assert(array.length > 0, "empty array in lastElement");
+  return array[array.length - 1];
+}
+// This provides a compact way to enforce expectations, helpfully blowing up the program if the stated condition does not hold.
+// For instance, the lastElement function, which fetches the last element from an array, would return undefined on empty arrays if the
+// assertion was omitted. Fetching the last element from an empty array does not make much sense, so it almost certainly a programmer
+// error to do so.
+
+// Assertions are a way to make sure mistakes cause failures at the point of the mistake, rather than silently producing nonsense values
+// that may go on to cause trouble in an unrelated part of the system.
 
 
 // Throw Statement
