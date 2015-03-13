@@ -190,3 +190,11 @@ throw "Error2"; // generates an exception with a string value
 throw 42; // generates an exception with the value 42
 throw true; // generates an exception with value target
 
+// Summary
+// Throwing an exception causes the call stack to be unwound until the next enclosing "try"/"catch" block or until the bottom of the
+// stack. The exception value will be given to the catch block that catches it, which should verify that it is actually the kind of
+// exception and then do something with it. To deal with the unpredictable control flow caused by exceptions, finally blocks can be used
+// to ensure a piece of code is always run when a block finishes.
+
+
+
