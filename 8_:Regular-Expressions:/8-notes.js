@@ -101,7 +101,8 @@ console.log(dateTime.test("30-1-2003 8:45")); // Returns true
 // So {,5} means zero to five times, and {5,} means five or more times.
 
 // Example from JavaScript the Good Parts pg.66
-var parse_url = /^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/;
+var parse_url = /^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)
+(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/;
 // --NOTE-- Regular expressions cannot be broken into smaller pieces the way that functions can, so "parse_url" is a long one.
 var url = "http://www.ora.com:80/goodparts?q#fragment";
 // Let's call parse_url's exec method. If it is successfully matches the string that we pass it, it will return an array containing
@@ -115,7 +116,7 @@ var blanks = "            ";
 var i;
 
 for (var i = 0; i < names.length; i += 1) {
-    document.writeln(names[i] + ":" + blanks.substring(names[i].length), result[i]);
+    document.writeln(names[i] + ":" + blanks.substring(names[i].length), result[i]) + "\n";
 }
 // This produces:
 url: "http://www.ora.com:80/goodparts?q#fragment"
@@ -176,3 +177,144 @@ $
 // It is possible to make regular expressions more complex than parse_url but Crawford doesn't recommend it.
 // Regular expressions are best when they are short and simple. Only then can we have confidence that they are working correctly and
 // that they could be successfully modified if necessary.
+
+// Let's look at another example: a regular expression that matches numbers. Numbers can have an integer part with an optional minus
+// sign, an optional fractional part, and an optional exponent part:
+var parse_number = /^-?\d+(?:\.\d*)?(?:e[+\-]?\d+)?$/i;
+
+var test = function(num) {
+    document.writeln(parse_number.test(num));
+};
+test("1");              // Returns true
+test("number");         // Returns false
+test("98.6");           // Returns true
+test("132.21.86.100");  // Returns false
+test("123.45E-67");     // Returns true
+test("123.45D-67");     // Returns false
+// parse_number successfully identified the strings that conformed to our specification and those that did not, but for those that
+// did not, it gives us no information on why or where they failed the number test.
+// Let's break parse_number down:
+/^   $/i
+// We again use ^ and $ to anchor the regular expression. This causes all of the characters in the text to be matched against the
+// regular expression.
+// If we had omitted the anchors, the regular expression would tell us if a string contains a number.
+// With the anchors, it tell s us if the string contains only a number.
+// If we included just the ^, it would match strings starting with a number.
+// If we included just the $, it would match strings ending with a number.
+// The i flag causes case to be ignored when matching letters. The only letter in our pattern is e. We want that e to match E. We
+// could have written the e factor as [Ee] or [?:E|e], but we didn't have to because we used the i flag:
+-?
+// The ? suffix on the minus sign indicates that the minus sign is optional:
+\d+
+// \d means the same as [0-9]. It matches a digit. The + suffix causes it to match one or more digits:
+(?:\.\d*)?
+// The (?...)? indicates an optional non-capturing group. It is usually better to use non-capturing groups instead of a less ugly
+// capturing groups because capturing has a performance penalty. The group will match a decimal point followed by a zero or more
+// digits:
+(?:e[+\-]?\d+)?
+// This is another optional non-capturing group. It matches e (or E), an optional sign, and one or more digits.
+
+
+// Construction
+// --NOTE-- I am breaking the DRY principle to help myself remember.
+// There are two ways to make a RegExp object. The preferred way, as we say in the examples, is to use a regular expression literal.
+// Regular expression literals are enclosed in slashes. This can be a little tricky because slash is also used as the division
+// operator and in comments.
+
+// There are three flags that can be set on a RegExp.
+// They are indicated by the letters g, i, and m.
+// The flags are appended directly to the end of the RegExp literal:
+
+// Make a regular expression object that matches a JavaScript string.
+var my_regexp = /"(?:\\.|[^\\\"])*"/g;
+
+// g    --> Global (match multiple times; the precise meaning of this varies with the method)
+// i    --> Insensitive (ignore character case)
+// m    --> Multiline (^ and $ can match line-ending characters)
+
+// The other way to make a regular expression is to use the RegExp constructor. The constructor takes a string and compiles it into a
+// a RegExp object. Some care must be take in building the string because backslashes have a somewhat different meaning in regular
+// expressions that in string literals.
+// It usually necessary to double the backslashes and escape the quotes:
+// Make a regular expression object that matches a JavaScript object.
+
+var my_regexp = new RegExp("\"(?:\\.|[^\\\\\\\"])*\"", "g");
+// The second parameter is a string specifying the flags. The RegExp constructor is useful when a regular expression must be
+// generated at runtime using material that is not available to the programmer.
+
+// Jumping back to Eloquent JavaScript
+// The following example shows a date and time pattern that allows both single and double-digit days, months, and hours.
+var dateTime = /^\d{1,2}-\d{1,2}-\d{4}\s\d{1,2}:\d{2}$/;
+console.log(dateTime.test("14-3-2015 2:07")); // Returns true
+// Let's see how it works
+// ^ indicates it is the start of the string.
+// \d{1,2} looking for a digit element that must occur at least once and at most two times.
+// -\d{1,2} a dash (-) is to be matched literally. We then match a digit that must occur at least once and at most two times.
+// -\d{4} a dash is to matched literally. We then match a digit that is required to occur exactly four times.
+// \s\d{1,2} the \s is to match whitespace. We then match a digit that must occur at least once and at most two times.
+// :\d{2} a colon is to be matched literally. Then match a digit that is required to occur exactly two times.
+// $ represents the end of the string. It assures us that there was no extra material after the end of the dateTime string.
+
+
+// Grouping Subexpressions
+// To use an operator like * or + on more than one element at a time, you can use parentheses.
+// A part of a regular expression that is enclosed in parentheses counts as a single element as far as the operators following it
+// are concerned.
+var cartoonCrying = /boo+(hoo+)+/i;
+console.log(cartoonCrying.test("Boohoooohoohooo"));     // Returns true
+// The first and second + characters apply only to the second o in boo and hoo, respectively.
+// The third + applies to the whole group (hoo+), matching one or more sequences like that.
+
+// The i at the end of the expression makes this regular expression case insensitive, allowing it to match the uppercase B in the
+// input string, even though the pattern is itself all lowercase.
+
+
+// Matches and Groups
+// The test method is the absolute simplest way to match a regular expression. It tells you only whether it matched and nothing else.
+// Regular expressions also have an exec (execute) method that will return null if no match was found and return an object with
+// information about the match otherwise.
+var match = /\d+/.exec("one two 100");
+console.log(match);         // -> ["100"]
+console.log(match.index);   // -> 8
+// An object returned from exec has an index property that tells us where in the string the successful match begins. Other than that,
+// the object looks like (and in fact is) an array of strings, whose first element is the string that was matched -- in the previous
+// example, this is the sequence of digits that we were looking for.
+
+// String values have a match method that behaves similarly.
+console.log("one two 100".match(/\d+/)); // -> ["100"]
+
+// When a regular expression contains subexpressions grouped with parentheses, the text that matched those groups will also show up
+// in the array. The whole match is always the first element. The next element is the part matched by the first group
+// (the one whose opening parenthesis comes first in the expression), then the second group, and so on.
+var quotedText = /'([^']*)'/;
+console.log(quotedText.exec("'hello' moto"));
+// -> ["'hello'", "hello", index: 0, input: "'hello' moto"]
+
+// When a group does not end up being matched at all (for example, when followed by a question mark), its position in the output array
+// will hold undefined. Similarly, when a group is matched multiple times, only the last match ends up in the array.
+console.log(/bad(ly)?/.exec("bad"));
+// -> ["bad", undefined, index: 0, input: "bad"]
+
+console.log(/(\d)+/.exec("123"));
+// -> ["123", "3", index: 0, input: "123"]
+
+// Brief detour to discuss the preferred way to store date and time values in JavaScript.
+
+// The Date Type
+// JavaScript has a standard object type for representing dates -- or rather, points in time.
+// It is called Date.
+// If you simply create a date object using new, you get the current date and time.
+new Date();
+// Sat Mar 14 2015 14:43:07 GMT-0500 (CDT) // Pi Day!
+
+// You can also create an object for a specific time.
+new Date(1776, 6, 4);
+// Thu Jul 04 1776 00:00:00 GMT-0500 (CDT)
+
+// JavaScript uses a convention where month numbers start at zero (so July is 6), yet day numbers start at one. Kind of confusing...
+// The last four arguments (hours, minutes, seconds, and milliseconds) are optional and taken to be zero when to given.
+// Timestamps are stored as the number of milliseconds since the start of 1970, using negative numbers for times before 1970
+// (following a convention set by "Unix Time", which was invented around that time).
+// The getTime method on a date object returns this number. It is big, as you can imagine.
+new Date(2015, 2, 14).getTime();
+// -> 1426309200000
