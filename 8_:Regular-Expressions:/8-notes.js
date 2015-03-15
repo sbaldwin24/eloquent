@@ -26,7 +26,7 @@ console.log(/abc/.test("abxde")); // Returns false
 
 console.log(/abc/.test("ffffffffabcffffff")); // Returns true
 
-// A regular expression consisting of only nonspecial characters simply represents that sequence of characters. If "abc" occurs
+// A regular expression consisting of only non-special characters simply represents that sequence of characters. If "abc" occurs
 // anywhere in the string we are testing against (not just at the start), test will return true.
 
 // Matching a Set of Characters
@@ -50,8 +50,8 @@ console.log(/[0-9]/.test("in 1992")); // Returns true
 // "\w" --> An alphanumeric character("word character")
 // "\s" --> Any whitespace character (space, tab, newline, and similar)
 // "\D" --> A character that is not a digit
-// "\W" --> A nonalphanumeric character
-// "\S" --> A nonwhitespace character
+// "\W" --> A non-alphanumeric character
+// "\S" --> A non-whitespace character
 // "." --> Any character except for a new line
 
 // So you could match a date and time format like 30-01-2003 15:20 with the following expression:
@@ -80,7 +80,7 @@ console.log(/'\d+'/.test("'123'")); // Returns true
 console.log(/'\d+'/.test("''"));    // Returns false
 console.log(/'\d*'/.test("'123'")); // Returns true
 console.log(/'\d*'/.test("''"));    // Returns true
-// The star (*) has a similiar meaning but also allows the pattern to match zero times. Something with a start after it never prevents
+// The star (*) has a similar meaning but also allows the pattern to match zero times. Something with a start after it never prevents
 // a pattern from matching -- it will just match zero instances if it can not find any suitable text to match.
 
 // A question mark makes a part of a pattern "optional", meaning it may occur zero or one time. In the following example, the "u"
@@ -318,3 +318,181 @@ new Date(1776, 6, 4);
 // The getTime method on a date object returns this number. It is big, as you can imagine.
 new Date(2015, 2, 14).getTime();
 // -> 1426309200000
+
+// Date objects provide methods like getFullYear, getMonth, getDate, getHours, getMinutes, and getSeconds to extract their components.
+// There is also getYearm which gives us a rather useless two-digit year value (such as 15 or 88).
+// Putting parentheses around the parts of the expression that we are interested in, we can now easily create a date object from a
+// string.
+function findDate(string) {
+    var dateTime = /(\d{1,2})-(\d{1,2})-(\d{4})/;
+    var match = dateTime.exec(string);
+    return new Date(Number(match[3]),
+                    Number(match[2]),
+                    Number(match[1]));
+};
+console.log(findDate("4-6-1776"));
+// -> Thu Jul 04 1776 00:00:00 GMT-0500 (CDT)
+
+
+// Word and String Boundaries
+// Unfortunately, findDate will also happily extract the nonsensical date 00-1-3000 from the string "100-1-3000".
+// A match may happen anywhere in the string, so in this case, it will just start at the second character and end at the
+// second-to-last character.
+
+// If we want to enforce that the match must span the whole string, we can add the markers ^ and $.
+// The caret, ^ , matches the start of the input string, while the dollar sign, $ , matches the end.
+// /^\d+$/ matches a string consisting entirely of one or more digits.
+// /^!/ matches any string that starts with an exclamation mark.
+// /x^/ does not match any string (there cannot be an x before the start of a string).
+
+// If on the other hand, we just want to make sure the date starts and ends on a word boundary, we can use the marker \b.
+// A word boundary can be the start or end of the string or any point in the string that has a word character (as in \w)
+// on one side and a non-word character on the other.
+console.log(/cat/.test("concatenate"));
+// -> true
+console.log(/\bcat\b/.test("concatenate"));
+// -> false
+
+// --NOTE-- that a boundary marker does not represent an actual character. It just enforces that the regular expression matches only
+// when a certain condition holds at the place where it appears in the pattern.
+
+
+// Choice Patterns
+// Say we want to know whether a piece of text contains not only a number but a number followed by one of the words, pig, cow, or
+// chicken, or any of their plural forms.
+
+// We could write three regular expressions and test them in turn, but there is a nicer way.
+// The pipe character (|) denotes a choice between the pattern to its left and the pattern to its right.
+// So we can say this:
+var animalCount = /^\b\d+\s(pig|cow|chicken)s?\b$/;
+console.log(animalCount.test("15 pigs"));
+// -> true
+console.log(animalCount.test("15 pigchickens"));
+// -> false
+console.log(animalCount.exec("15 pigs"));
+// -> ["15 pigs", "pig", index: 0, input: "15 pigs"]
+
+// Parentheses can be used to limit the part of the patten the pipe operator applies to, and you can put multiple operators next to
+// each other to express a choice between more than two patterns.
+
+
+// The Replace Method
+// String values have a replace method, which can be used to replace part of the string with another string.
+console.log("papa".replace("p", "m"));
+// -> mapa
+// The first argument can also be a regular expression, in which case the first match of the regular expression is replaced.
+// When a g option (for global) is added to the regular expression, all matches in the string will be replaced, not just the first.
+console.log("Borobudur".replace(/[ou]/, "a"));
+// -> Barobudur
+console.log("Borobudur".replace(/[ou]/g, "a")); // Added the g flag
+// -> Barabadar
+
+// It would have been sensible if the choice between replacing one match or all matches was made through an additional argument to
+// replace or by providing a different method, replaceAll. But for some unfortunate reason, the choice relies on a property of the
+// regular expression instead.
+
+// The real power of using regular expressions with replace comes from the fact that we can refer back to matched groups in the
+// replacement string. For example, say we have a big string containing the names of people, one name per line, in the format
+// Lastname, Firstname. If we want to swap these names and remove the comma to get a simple Firstname Lastname format, we can use
+// the following code:
+console.log("Hopper, Grace\nMcCarthy, John\nRitchie, Dennis\nFranklin, Benjamin".replace(/([\w]+), ([\w]+)/g, "$2 $1"));
+// Grace Hopper
+// John McCarthy
+// Dennis Ritchie
+// Benjamin Franklin
+
+// The $1 and $2 in the replacement string refer to the parenthesized groups in the pattern.
+// $1 is replaced by the text that matched against the first group.
+// $2 by the second, and so on, up to $9.
+// The whole match can be referred to with $&.
+
+// Another example:
+console.log("Washington, General George\nFranklin, Benjamin American\nJefferson, Thomas Independence\nBush, George Walker".replace(/([\w]+),\s([\w]+)\s([\w]+)/g, "$2 $3 $1"));
+// General George Washington
+// Benjamin American Franklin
+// Thomas Independence Jefferson
+// George Walker Bush
+
+// It is also possible to pass a function, rather than a string, as the second argument to replace. For each replacement, the function
+// will be called with the matched groups (as well as the whole match) as arguments, and its return value will be inserted into the
+// new string.
+// Here's a simple example:
+var s = "the cia and fbi";
+console.log(s.replace(/\b(fbi|cia)\b/g, function(str) {
+    return str.toUpperCase();
+}));
+// -> the CIA and FBI
+
+// Another Example:
+var s = "the united states of america";
+console.log(s.replace(/\b(the|united|states|america)\b/g, function(str) {
+    return str.toUpperCase();
+}));
+// -> THE UNITED STATES of AMERICA
+
+
+// A more interesting example:
+var stock = "1 lemon, 2 cabbages, and 101 eggs";
+function minusOne(match, amount, unit) {
+    amount = Number(amount) - 1;
+    if (amount == 1) {  // only one left, remove the "s"
+        unit = unit.slice(0, unit.length - 1);
+    } else if (amount == 0) {
+        amount = "no";
+    }
+    return amount + " " + unit;
+};
+console.log(stock.replace(/(\d+)\s(\w+)/g, minusOne));
+// -> no lemon, 1 cabbage, and 100 eggs
+// This takes a string, finds all occurrences of a number followed by an alphanumeric word, and returns a string wherein every such
+// occurrence is decremented by one.
+
+// The (\d+) group ends up as the amount argument to the function, and the (\w+) group gets bound to unit.
+// The function converts amount to a number -- which always works, since it matched \d+ -- and makes some adjustments in case there is
+// only one or zero left.
+
+
+
+// Greed
+// It isn't hard to use replace to write a function that removes all comments from a piece of JavaScript code.
+// Here is a first attempt:
+function stripComments(code) {
+    return code.replace(/\/\/.*|\/\/*[^]*\*\//g, "");
+};
+console.log(stripComments("1 + /* 2 */3"));
+// -> 1 + 3
+console.log(stripComments("x = 10; //ten!"));
+// -> x = 10;
+console.log(stipComments("1 /* a */+/* b */ 1"));
+// -> 1 1
+console.log(stripComments("Liberty //Freedom"));
+// -> Liberty
+// The part before the or operator simply watches two slash characters followed by any number of non-newline characters.
+// The part for multi-line comments is more involved.
+// We use [^] (any character that is not in the empty set of characters) as a way to match any character.
+// We cannot just use a dot here because block comments continue on a new line, and dots do not match the newline character.
+
+// But the output of the previous example appears to have gone wrong. Why?
+
+// Th [^]* part of the expressions, as described in the section on backtracking, will first match as much as it can. If that causes
+// the next part of the pattern to fail, the matcher moves back one character and tries again from there.
+// In the example, the matcher first tries to match the whole rest of the string and the moves back from there.
+// It will find an occurrence of */ after going back four characters and match that.
+// This is NOT what we wanted -- the intention was to match a single comment, not to go all the way to the end of the code and find
+// the end of the last block comment.
+
+// Because of this behavior, we say the repetition operators(+,*,?, and {}) are greedy, meaning they match as much as they can and
+// backtrack from there.
+// If we put a question mark after them (+?, *?, ??, {}?) they become non-greedy and start by matching as little as possible, matching
+// more only when the remaining pattern does not fit the smaller match.
+
+// And that is exactly what we want in this case. By having the star match the smallest stretch of characters that brings us to a
+// */, we consume one block comment and nothing more.
+function stripComments(code) {
+  return code.replace(/\/\/.*|\/\*[^]*?\*\//g, "");
+}
+console.log(stripComments("1 /* a */+/* b */ 1"));
+// -> 1 + 1
+
+// --NOTE-- A lot of bugs in regular expression programs can be traced to unintentionally using a greedy operator where a non-greedy
+// --NOTE-- one would work better. When using a repetition operator, consider the non-greedy variant first.
