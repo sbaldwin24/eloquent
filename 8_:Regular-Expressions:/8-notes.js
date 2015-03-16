@@ -522,5 +522,37 @@ console.log(stripComments("1 /* a */+/* b */ 1"));
 
 
 // Dynamically Creating RegExp Objects
+// There are cases where you might not know the exact pattern you need to match against when we are writing code.
+// Say we want to look for the user's name in a piece of text and enclose it in underscore characters to make it stand out.
+// Since we will know the name only once the program is actually running, we cannot use the slash-based notation.
+
+// But we can build up a string and use the RegExp constructor on that.
+// Here is an example:
+var name = "hillary";
+var text = "Hillary is a suspicious character.";
+var regexp = new RegExp("\\b(" + name + ")\\b", "gi");
+console.log(text.replace(regexp, "_$1_"));
+// -> _Hillary_ is a suspicious character.
+
+// When creating the \b boundary markers, we have to use two backslashes because we are writing them in a normal string, NOT a
+// slash-enclosed regular expression.
+// The second argument to the RegExp constructor contains the options for the regular expression -- in this case "gi" for global and
+// case-insensitive.
+
+// But what if the name is "dea+hl[]rd" because our user is a nerdy teenager?
+// That would result in a nonsensical regular expression, which won't actually match the user's name.
+
+// To work around this, we can add backslashes before any character that do not trust.
+// Adding backslashes before alphabetic character is a bad idea because things like \b and \n have a special meaning.
+// But escaping everything that is not alphanumeric or whitespace is safe.
+var name = "dea+hl[]rd";
+var text = "This dea+hl[]rd guy is super annoying.";
+var escaped = name.replace(/[^\w\s]/g, "\\$&");
+var regexp = new RegExp("\\b(" + escaped + ")\\b", "gi");
+console.log(text.replace(regexp, "_$1_"));
+// -> This _dea+hl[]rd_ guy is super annoying.
+
+
+
 
 
