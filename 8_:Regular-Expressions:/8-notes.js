@@ -701,4 +701,11 @@ function parseINI(string) {
 // that assignment as the test in the if statement.
 
 
+// International Characters
+// JavaScript's regular expressions are rather dumb about characters that do not appear in the English language.
+// For example, as far as JavaScript's regular expressions are concerned, a "word character" is only one of the 26 characters in the
+// Latin alphabet (uppercase or lowercase) and, for some reason, the underscore character.
+// Things like é or β, which most definitely are word characters, will not match \w (and will match uppercase \W, the non-word
+// category).
+// By a strange historical accident, \s (whitespace) does not have this problem and matches all characters that the Unicode standard // considers whitespace, including things like the nonbreaking space and the Mongolian vowel separator.
 
