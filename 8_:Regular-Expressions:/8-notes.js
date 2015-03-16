@@ -607,5 +607,22 @@ console.log("Banana".match(/an/g));
 
 
 // Looping Over Matches
+// A common pattern is to scan through all occurrences of a pattern in a string, in a way that gives us access to the match object in
+// the loop body, by using lastIndex and exec.
+var input = "A string with 3 numbers in it... 24 and 48.";
+var number = /\b(\d+)\b/g;
+var match;
+while (match = number.exec(input)) {
+    console.log("Found", match[1], "at", match.index);
+};
+// -> Found 3 at 14
+// -> Found 24 at 33
+// -> Found 48 at 40
+
+// This makes use of the fact that the value of an assignment expression (=) is the assigned value.
+// So by using match = re.exec(input) as the condition in the while statement, we perform the match at the start of each iteration,
+// save its result in a variable, and stop looping when no more matches are found.
+
+
 
 
