@@ -707,5 +707,8 @@ function parseINI(string) {
 // Latin alphabet (uppercase or lowercase) and, for some reason, the underscore character.
 // Things like é or β, which most definitely are word characters, will not match \w (and will match uppercase \W, the non-word
 // category).
-// By a strange historical accident, \s (whitespace) does not have this problem and matches all characters that the Unicode standard // considers whitespace, including things like the nonbreaking space and the Mongolian vowel separator.
+// By a strange historical accident, \s (whitespace) does not have this problem and matches all characters that the Unicode standard // considers whitespace, including things like the non breaking space and the Mongolian vowel separator.
+
+
+// Jumping back to JavaScript: The Good Parts
 
