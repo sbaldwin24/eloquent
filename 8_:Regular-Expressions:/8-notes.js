@@ -430,6 +430,22 @@ console.log(s.replace(/\b(the|united|states|america)\b/g, function(str) {
 }));
 // -> THE UNITED STATES of AMERICA
 
+// Another Example:
+var str = "i love the united states of america";
+
+str = str.toLowerCase().replace(/\b([^a-z]|^)([iltusa])/g, function(letter) {
+    return letter.toUpperCase();
+});
+// -> I Love The United States of America
+
+// Another Example:
+var str = "i love the united states of america";
+
+tr = str.replace(/([^a-z]|^)([iltusa])/g, function(_, g1, g2) {
+    return g1 + g2.toUpperCase();
+});
+// -> I Love The United States of America
+
 
 // A more interesting example:
 var stock = "1 lemon, 2 cabbages, and 101 eggs";
@@ -458,6 +474,8 @@ console.log(stock.replace(/(\d+)\s(\w+)/g, minusOne));
 // Here is a first attempt:
 function stripComments(code) {
     return code.replace(/\/\/.*|\/\/*[^]*\*\//g, "");
+    return code.replace(/\/\/.*|\/\*[^]*?\*\//g, "");
+
 };
 console.log(stripComments("1 + /* 2 */3"));
 // -> 1 + 3
@@ -474,7 +492,7 @@ console.log(stripComments("Liberty //Freedom"));
 
 // But the output of the previous example appears to have gone wrong. Why?
 
-// Th [^]* part of the expressions, as described in the section on backtracking, will first match as much as it can. If that causes
+// The [^]* part of the expressions, as described in the section on backtracking, will first match as much as it can. If that causes
 // the next part of the pattern to fail, the matcher moves back one character and tries again from there.
 // In the example, the matcher first tries to match the whole rest of the string and the moves back from there.
 // It will find an occurrence of */ after going back four characters and match that.
@@ -496,3 +514,13 @@ console.log(stripComments("1 /* a */+/* b */ 1"));
 
 // --NOTE-- A lot of bugs in regular expression programs can be traced to unintentionally using a greedy operator where a non-greedy
 // --NOTE-- one would work better. When using a repetition operator, consider the non-greedy variant first.
+
+function stipComments(code) {
+    return code.replace(/\/\/.*|\/\*[^]*?\*\//g, "");
+}
+console.log(stripComments("1 /* a */+/* b */ 1"));
+
+
+// Dynamically Creating RegExp Objects
+
+
