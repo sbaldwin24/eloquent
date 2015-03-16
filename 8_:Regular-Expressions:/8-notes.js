@@ -625,4 +625,80 @@ while (match = number.exec(input)) {
 
 
 
+// Parsing an INI file
+// To FINALLY conclude the chapter, we will look at a problem that calls for regular expressions.
+// Imagine we are writing a program to automatically harvest information about our enemies from the Internet.
+// We are just going to write the part of the program that reads the configuration files:
+searchengine=http://www.google.com/search?q=$1
+spitefulness=9.7
+
+; comments are preceded by a semicolon...
+; each section concerns an individual enemy
+[larry]
+fullname=Larry Doe
+type=kindergarten bully
+website=http://www.geocities.com/CapeCanaveral/11451
+
+[gargamel]
+fullname=Gargamel
+type=evil sorcerer
+outputdir=/home/marijn/enemies/gargamel
+// Th exact rules for this format (which is actually widely used format, usually called an INI file) are as follows:
+// - Blank lines and lines starting with semicolons are ignored.
+// - Lines wrapped in [ and ] start a new section.
+// - Lines containing an alphanumeric identifier followed by an = character add a setting to the current section.
+// - Anything else is invalid.
+
+// Our task is to convert a string like this into an array of objects, each with a name property and an array of settings.
+// We will need one such object for each section and one for the global setting at the top.
+
+// Since the formation has to be processed line by line, splitting up the file into seperate lines is a good start.
+// We used "string.split("\n")" to do this in Chapter 6. Some operating systems, however, use just a newline character to separate
+// lines but a carriage return character followed by a newline ("\r\n").
+// Given that the split method allows a regular expression as its argument, we can split on a regular expression like /\r?\n/ to split
+// in a way that allows both "\n" and "\r\n" between lines.
+
+function parseINI(string) {
+    // Start with an object to hold the top-level fields
+    var currentSection = {name: null, fields: []};
+    var categories = [currentSection];
+
+    string.split(/\r?\n/).forEach(function(line) {
+        var match;
+        if (/^\s*(;.*)?$/.test(line)) {
+            return;
+        } else if (match = line.match(/^\[(.*)\]$/)) {
+            currentSection = {name: match[1], fields: []};
+            categories.push(currentSection);
+        } else if (match = line.match(/^(\w+)=(.*)$/)) {
+            currentSection.fields.push({name: match[1], value: match[2]});
+        } else {
+            throw new Error("Line '" + line + "' is invalid.");
+        }
+    });
+    return categories;
+}
+
+// This code goes over every line in the file, updating the "current section" object as it goes along.
+// First, it checks whether the line can be ignored, using the expression /^\s*(;.*)?$/.
+// Do you see how it works???
+// The part between the parentheses will match comments, and the ? will make sure it also matches lines containing only whitespace.
+
+// If the line is not a comment, the code then checks whether the line starts a new section. If so, it creates a new current section
+// object, to which subsequent settings will be added.
+
+// The last meaningful possibility is that the line is a normal setting, which the code adds to the current section object.
+
+// If a line matches none of these forms, the function throws an error.
+
+// --NOTE-- the recurring use of ^ and $ to make sure the expression matches the whole line, not just part of it.
+// --NOTE-- Leaving ^ and $ out results in code that mostly works but behaves strangely for some input, which can be a difficult bug
+// to track down.
+
+// The pattern if (match = string.match(...)) is similar to the trick of using an assignment as the condition for while.
+// We often are not sure that our call to match will succeed, so we can access the resulting object only inside an if statement that
+// tests for this. To not break the pleasant chain of if forms, we assign the result of the match to a variable and immediately use
+// that assignment as the test in the if statement.
+
+
 
