@@ -42,3 +42,21 @@
 // allowing us to search for the functionality we need and, one we find it, set up our project to automatically download it.
 
 // NPM!
+
+
+
+// Decoupling
+// Another important role of modules is isolating pieces of code from each other. A well-designed module will provide an interface
+// for external code to use. As the module gets updated with bug fixes and new functionality, the existing interface stays the same
+// (it is stable) so that the other modules can use the new, improved version without any changes to themselves.
+
+// --NOTE-- A stable interface does not mean no new functions, methods, or variables are added. It just means that existing
+// functionality is not removed and its meaning is not changed.
+
+// A good module interface should allow the module to grow without breaking the old interface. This means exposing as few othe module's
+// internal concepts as possible wile also making the "language" that the interface exposes powerful and flexible enough to be
+// applicable in a wide range of situations.
+
+// For interfaces that expose a single, focused concept, such as a configuration file reader, this design comes naturally. For others,
+// such as a text editor, which has many different aspects that external code might need to access (content, styling, user actions),
+// it requires careful design.
