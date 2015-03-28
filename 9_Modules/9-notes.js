@@ -213,7 +213,8 @@ weekDay.name("Saturday");
 function evalAndReturnX(code) {
     eval(code);
     return x;
-}
+};
+
 console.log(evalAndReturnX("var x = 24"));
 // -> 24
 
@@ -221,10 +222,79 @@ console.log(evalAndReturnX("var x = 24"));
 // This takes two arguments: a string containing a comma-seperated list of argument names and a string containing the function's body.
 
 var plusOne = new Function("n", "return n + 1;");
+
 console.log(plusOne(4));
 // -> 5
 // This is precisely what we need for modules. We can wrap a module's code in a function, with that function's scope becoming our module
 // scope.
+
+
+
+// Require
+// The following is a minimal implementation of require:
+
+function require(name) {
+    var code = new Function("exports", readFile(name));
+    var exports = {};
+    code(exports);
+    return exports;
+};
+
+console.log(require("weekDay").name(1));
+// -> Monday
+
+// Since the new Function constructor wraps the module code in a function, we do not have to write a wrapping namespace function in the
+// module file itself. And since we make exports an argument to the module function, the module does not have to declare it.
+// This removes a lot of clutter from our example module.
+
+var names = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+expors.name = function(number) {
+    return names[number];
+};
+exports.number = function(name) {
+    return names.indexOf(name);
+};
+
+
+// When using this pattern, a module typically starts with a few variable declarations that load the modules it depends on.
+var weekDay = require("weekDay");
+var today = require("today");
+
+console.log(weekDay.name(today.dayNumber()));
+// This simplistic implementation of require given previously has several problems.
+// For one, it will load and run a module every time it is required, so if several modules have the same dependency or a require call is
+// inside a function that will be called multiple times, time and energy will be wasted.
+
+// This can be solved by storing the modules that have already been loaded in an object and simply return the existing value when one is
+// loaded multiple times.
+
+// The second problem is that it is not possible for a module to directly export a value other than the exports object, such as a function.
+// For example, a module might want to export only the constructor of the object type it defines.
+// Right now, it cannot do that because require always uses the export object it creates as the exported value.
+
+// The traditional solution for this is to provide modules with another variable, module, which is an object that has a property exports.
+// This property initially points at the empty object created by require but can be overwritten with another value in order to export
+// something else.
+function require(name) {
+    if (name in require.cache) {
+        return require.cache[name];
+    }
+    var code = new Function("exports, module", readFile(name));
+    var exports = {}, module = {exports: exports};
+    code(exports, module);
+
+    require.cache[name] = module.exports;
+    return module.exports;
+};
+require.cache = Object.create(null);
+
+// We not have a module system that uses a single global variable (require) to allow modules to find and use each other without going
+// through the global scope.
+
+// This style of module system is called RequireJS modules, after the pseudo-standard that first specified it.
+// It is built into the Node.js system. Real implementations do a lot more than the example I showed.
+// Most importantly, they have a much more intelligent way of going from a module name to an actual piece of code, allowing both
+// pathnames relative to the current file and module names that point directly to locally installed modules.
 
 
 
