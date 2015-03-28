@@ -202,3 +202,29 @@ weekDay.name("Saturday");
 // let's just pretend we this function.)
 // Second, we need to be able to actually execute this string as JavaScript code.
 
+
+
+// Evaluating Data as Code
+// There are several ways to take data (a string of code) and run it as part of the current program.
+
+// The most obvious way is the special operator eval, which will execute a string of code in the current scope. This is usually a bad idea
+// because it breaks some of the sane properties that scopes normally have, such as being isolated from the outside world.
+
+function evalAndReturnX(code) {
+    eval(code);
+    return x;
+}
+console.log(evalAndReturnX("var x = 24"));
+// -> 24
+
+// A better way of interpreting data as code is to use the Function constructor.
+// This takes two arguments: a string containing a comma-seperated list of argument names and a string containing the function's body.
+
+var plusOne = new Function("n", "return n + 1;");
+console.log(plusOne(4));
+// -> 5
+// This is precisely what we need for modules. We can wrap a module's code in a function, with that function's scope becoming our module
+// scope.
+
+
+
