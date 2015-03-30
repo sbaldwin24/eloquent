@@ -298,3 +298,363 @@ require.cache = Object.create(null);
 
 
 
+// Slow-Loading Modules
+// Though it is possible to use the CommonJS module style when writing JavaScript for the browser, it is somewhat involved.
+// The reason for this is that reading a file (module) from the Web is a lot slower than reading it from the hard disk.
+// While a script is running in the browser, nothing else can happen to the website on which it runs.
+// This means that if every require call went and fetched something from some faraway server, the page would freeze for a painfully long
+// time wile loading its scripts.
+
+// One way to work around this problem is to run a program like Browserify on your code before you serve it on a web page.
+// This will look for calls to require, resolve all dependencies, and gather the needed code into a single big file. The website itself can
+// simply load this file to get all the modules it needs.
+
+// Another solution is to wrap the code that makes up your module in a function so that the module loader can first load its dependencies
+// in the background and then call the function, initializing the module, when the dependencies have been loaded. That is what the
+// Asynchronus Module Definition (AMD) module does.
+
+// Our trivial program with dependencies would like this in AMD:
+define(["weekDay", "today"], function(weekDay, today) {
+    console.log(weekDay.name(today.dayNumber()));
+});
+
+// The define function is central to this approach.
+// It takes first an array of module names and then a function that takes one arguemnt for each dependency.
+// It will load the dependencies (if they have not already been loaded) in the background, allowing the page to continue working while the
+// the files are being fetched.
+// Once all dependencies are loaded, define will call the function it was given, which the interfaces of those dependencies as arguments.
+
+// The modules that are loaded using AMD must themselves contain a call to define.
+// The value used as their interface is whatever was returned by the function passed to define.
+// Here is the weekDay module again:
+define([], function() {
+     var names = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+     return {
+        name: function(number) {
+            return names[number];
+        },
+        number: function(name) {
+            return names.indexOf(name);
+        }
+     };
+});
+
+// For the purpose of keeping track of modules while they are being loaded, the implementation of define will use object s that describe
+// the state of modules, telling us whether they are available yet and providing their interface when they are.
+
+// To be able to show a minimal implementation of define, we will pretend we have a backgroundReadFile function that takes a filename and
+// a function and calls the function with the content of the file as soon as it has finished loading it.
+
+// The getModule function, when given a name, will return such an object and ensure that the module is schedule to be loaded.
+// It uses a cache object to avoid loading the same module twice.
+
+var defineCache = Object.create(null);
+var currentMod = null;
+
+function getModule(name) {
+    if (name in defineCache) {
+        return defineCache[name];
+    }
+
+    var module = {
+        exports: null,
+        loaded: false,
+        onLoad:[]
+    };
+    backgroundReadFile(name, function(code) {
+        currentMod = module;
+        new Function("", code());
+    });
+    return module;
+};
+
+// We assume the loaded file also contains a single call to define. The currentMod variable is used to tell this call about the module
+// object that is currently being loaded so that it can update this object when it finished loading.
+
+// The define function itself uses getModule to fetch or create the module objects for the current module's dependencies.
+
+
+
+// Switching up to Rob Dodson's explanation of RequireJS -- Embracing the Awesomeness of Asynchronus Modules
+// Asynchronus Module Definitions
+define(id?, dependencies?, factory);
+// Give our module a unique id (which is really just a path).
+// ~
+define("path/to/module", function() {
+
+});
+// RequireJS discourages the use of module ids.
+
+// Dependencies
+// List any dependencies in an Array and RequireJS will automatically inject them into our module.
+// ~
+// jquery assigned to $
+// d3 assigned to d3
+define(["jquery", "d3"], function($, d3) {
+
+});
+
+// The Factory Function
+// Called once per module. If the factory function returns anything then that object should be assigned as the export value for the module.
+// ~
+define(["jquery", "d3"], function($) {
+
+    return {
+        name: "Foo"
+        // whatever is return here is
+        // the exported value of the module
+    }
+
+});
+
+// Things We can do with the Factory Function
+// Return an Object
+// ~
+// person.js
+define(function() {
+    return {
+        name: "Sterling"
+        sayHello: function() {
+            alert("Hi, my name is " + this.name);
+        }
+    }
+});
+
+// app.js
+define(["person"], function(person) {
+    person.sayHello(); // alerts "Hi, my name is Sterling"
+});
+
+
+// Return a Function
+// ~
+// sum.js
+define(function() {
+
+    return function(a,b) {
+        alert(a + b);
+    }
+
+});
+// ~
+// calculator.js
+define(["sum"], function(sum) {
+
+    sum(2,2); // alerts 4
+
+});
+
+// Return Constructors!
+// ~
+define(function() {
+
+    function Person(name) {
+        this.name = name;
+        this.sayHello = function() {
+            console.log("Hello, my name is " + this.name);
+        }
+    }
+
+    return Person;
+});
+// ~
+// app.js
+define(["person"], function(Person) {
+    var sterling = new Person("Sterling");
+    sterling.sayHello(); // "Hello, my name is Sterling"
+});
+
+// Create Private Variables and Functions
+// ~
+// basket.js
+define(function() {
+    // Private
+    var counter = 0;
+
+    function getCounter() {
+        return counter;
+    }
+
+    function incrementCounter() {
+        counter++;
+    }
+
+    // Public
+    return {
+        count: function() {
+            return getCounter(); // return value of private variable
+        },
+        addToCart: function() {
+            incrementCounter(); // call private function
+        }
+    };
+});
+
+// Make a jQuery Plugin
+//  ~
+// awesomePlugin.js
+define(["jquery"], function($) {
+
+    // $.fn is shorthand for jQuery.prototype
+    $.fn.awesomePlugin =  function() { ... };
+
+});
+
+// app.js
+define(["jquery", "awesomePlugin"], function($) {
+    $("module").awesomePlugin();
+});
+
+// Ditch the Factory Function and Just Return an Object!
+// We can skip the factory function and just return an object. This helps us avoid a lot of boiler plate code.
+// ~
+// presentation.js
+define({
+    title: "Required",
+    presenter: "Sterling Baldwin",
+    location: "Dallas, Texas".
+    rating: "Probably the best presentation I've ever heard."
+});
+
+// app.js
+define(["presentation"], function(presentation) {
+    console.log(presentation.presenter); // "Sterling Baldwin"
+});
+
+// Some GOTCHAS!
+// Dependency Order Matters!
+// ~
+define(["jquery", "someJQueryPlugin"], function($) {
+    /* $ is mapped to the first dependency, which is jquery */
+});
+
+// What would happen if we did this?
+// this is a bad example or it will not work
+define(["someJQueryPlugin", "jquery"], function($) {
+    // $ is mapped to the first dependecy, which returns undefined
+    // because it is a plugin!!
+});
+// BEST PRACTICE -- put things that will return a value first and things that do not at the end.
+
+// Don't Mix Async and Synchronous Code
+// ~
+// index.html
+require(["jquery", "widget", "highcharts"], function($, widget) {
+    /* do something interesting with jquery */
+    // this code is fine
+});
+
+// <!-- Breaks because Highcharts hasn't loaded yet -->
+<script src="someHighchartsPlugin.js"></script>
+
+// <!-- Breaks because widgets hasn't loaded yet and isn't available in this scope -->
+<script type="text/javaScript">
+    widget.doSomething();
+</script>
+// this code will break
+
+// to remedy this...
+require(["jquery", "widget", "highcharts", "someHighchartsPlugin"], function($, widget) {
+
+    /* do something interesting with jquery */
+    widget.doSomething();
+
+});
+// Use shims or define your own AMD modules instead of mixing Async and Synchronous Code
+// When using RequireJS avoid using <script> tags as much as possible!
+
+// Beware of Circular Dependencies!
+// ~
+// moduleA.js
+define(["moduleB"], function(moduleB) {
+
+    /* do something interesting with moduleB */
+
+});
+
+// moduleB.js
+define(["moduleA"], function(moduleA) {
+
+    /* value for moduleA is undefined!!! */
+
+});
+
+
+// CONFIGURATION
+
+// BaseURL
+// Tell RequireJS where to find our modules.
+// Take this example structure of our web application
+/* example structure
+www/
+    assets/
+        css/
+        js/
+            app/
+                main.js/
+            vendor/
+                bootstrap.js
+        img/
+    index.html
+*/
+// config.js
+requirejs.config({
+    baseUrl: "./assets/js"
+    // start here
+});
+
+// index file
+require(["app/main", "vendor/bootstrap"]);
+
+
+// Paths
+// Shortcut frequently used paths to tidy up our code.
+// if you are a lazy developer, we could write ...
+// ~
+// config.js
+requirejs.config({
+    baseUrl: "./assets/js",
+    paths: {
+        "bootstrap": "vendor/bootstrap"
+    }
+});
+
+
+// Shim
+// Shiming allows us to load non-AMD libraries in the correct order.
+// ~
+// config.js
+requirejs.config({
+    baseUrl: "./js",
+    paths: {
+        "highstock": "../components/highstock",
+        "jquery":    "../components/jquery"
+    },
+    shim: {
+        "highstock": ["jquery"]
+    }
+});
+
+
+// Single-Page Application
+// To load RequireJS into our single page application, we would do this...
+// ~
+// config.js
+requirejs.config({
+    baseUrl: "./js",
+    // dependencies
+    deps: ["app/main"],
+    paths: {
+        "bootstrap": "../components/bootstrap/js",
+    },
+    shim: {
+        "highstock": ["jquery"]
+    }
+});
+
+// index.html
+// Notice the data-main
+<script data-main="js/config.js" src="js/vendor/require.js"></script>
+
+// Done with Rob, jumping back to EloquentJS
+
