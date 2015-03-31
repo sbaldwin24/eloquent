@@ -1,0 +1,115 @@
+body {
+  background: #343b42;
+  left: 20px;
+  right: 20px;
+  color: white;
+  font-family: KlavikaWeb, Helvetica, sans-serif;
+  min-width: 650px;
+  -webkit-font-smoothing: antialiased;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+img {
+  max-width: 100%;
+}
+h2 {
+  font-size: 1em;
+  line-height: 1.33333em;
+  position: relative;
+  top: 2px;
+}
+ul, li, p {
+  margin-bottom: 5px;
+  font-size: 0.77778em;
+  line-height: 1.71429em;
+  list-style: none;
+}
+button {
+  font-size: 0.77778em;
+  line-height: 1.28571em;
+  margin-top: 0.4em;
+  margin-bottom: 0.4em;
+  background: #4cb64f;
+  border: 1px solid #081f09;
+  color: black;
+  cursor: pointer;
+  display: block;
+  font-family: KlavikaWeb, Helvetica, sans-serif;
+  font-weight: bold;
+  line-height: 1;
+  padding: 5px 24px 3px 24px;
+  text-transform: uppercase;
+  width: 100%;
+}
+
+
+#tour {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  background: rgba(37, 43, 48, 0.5);
+  float: left;
+  min-height: 6em;
+  padding: 0.5em;
+  position: static;
+  vertical-align: top;
+  width: 210px;
+}
+div.tour .photos span, #tour .photos span, #all-tours ul li .photos span {
+  background-color: rgba(0, 0, 0, 0.5);
+  bottom: 5px;
+  display: none;
+  font-size: 14px;
+  height: 30px;
+  left: 5px;
+  line-height: 30px;
+  position: absolute;
+  right: 5px;
+  text-indent: 10px;
+  top: auto;
+}
+#tour .photos li {
+  float: left;
+  position: relative;
+  margin-left: 20px;
+  max-width: 170px;
+  background: #252b30;
+  border: 1px solid #121415;
+  padding: 5px 5px 0 5px;
+  width: 26%;
+    list-style: none;
+}
+.photos {
+  display: none;
+  position: absolute;
+  left: 210px;
+  top: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+li {
+  float: left;
+  position: relative;
+  margin-left: 20px;
+  max-width: 170px;
+  background: #252b30;
+  border: 1px solid #121415;
+  padding: 5px 5px 0 5px;
+  width: 26%;
+}
+
+.makeIn {
+  display: inline;
+}
+
+.makeHide {
+  display: hidden;
+}

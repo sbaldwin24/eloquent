@@ -1,0 +1,38 @@
+<!Doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Y</title>
+  <link href="style.css" rel="stylesheet" type="text/css">
+
+  <script data-main="app/config" src="bower_components/requirejs/require.js"></script>
+
+</head>
+<body>
+<script>
+require(['main'], function(){
+  // Load up this pages script, one the 'main' script has loaded
+});
+</script>
+
+  <div id="tour">
+  <h2>Paris, France Tour</h2>
+  <p>$2,499 for 7 Nights</p>
+  <button>See photos from our last tour</button>
+  <ul class="photos" style="display: block;">
+    <li>
+      <img src="http://d3n3e0roqdrhcc.cloudfront.net/assets/photos/paris1.jpg">
+      <span>Arc de Triomphe</span>
+    </li>
+    <li>
+      <img src="http://d3n3e0roqdrhcc.cloudfront.net/assets/photos/paris2.jpg">
+      <span>The Eiffel Tower</span>
+    </li>
+    <li>
+      <img src="http://d3n3e0roqdrhcc.cloudfront.net/assets/photos/paris3.jpg">
+      <span>Notre Dame de Paris</span>
+    </li>
+  </ul>
+</div>
+</body>
+</html>

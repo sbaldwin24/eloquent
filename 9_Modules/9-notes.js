@@ -372,6 +372,47 @@ function getModule(name) {
 // object that is currently being loaded so that it can update this object when it finished loading.
 
 // The define function itself uses getModule to fetch or create the module objects for the current module's dependencies.
+// Its task is to schedule the moduleFunction (the function that contains the module's actual code) to be run whenever those dependencies
+// are loaded. For this purpose, it defines a function whenDepsLoaded that is added to the onLoad array of all dependencies that not yet
+// loaded. This function immediately returns if there are still unloaded dependencies, so it will do actual work only once, when the last
+// dependency has finished loading. It is also called immediately from define, itself, in case there are no dependencies that need to be
+// loaded.
+// ~
+function define(depNames, moduleFunction) {
+    var myMod = currentMod;
+    var deps = depNames.map(getModule);
+
+    deps.forEach(function(mod) {
+        if (!mod.loaded) {
+            mod.onLoad.push(whenDepsLoaded);
+        }
+    });
+
+    function whenDepsLoaded() {
+        if (!deps.every(function(m) {
+            return m.loaded;
+        }))
+        return;
+
+        var args = deps.map(function(m) {
+            return m.exports;
+        });
+        var exports = moduleFunction.apply(null, args);
+        if (myMod) {
+            myMod.exports = exports;
+            myMod.loaded = true;
+            myMod.onLoad.forEach(function(f) {
+                f();
+            });
+        }
+    }
+    whenDepsLoaded();
+}
+// When all dependencies are available, whenDepsLoaded calls the function that holds the module, giving it the dependencies' interfaces as
+// arguments.
+
+// The first thing define does is store the value that currentMod had when it was called in a variable myMod.
+// Remember that getModule, just before evaluating the code for a module, stored the corresponding module object in currentMod.
 
 
 
