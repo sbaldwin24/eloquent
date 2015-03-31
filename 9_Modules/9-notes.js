@@ -699,3 +699,13 @@ requirejs.config({
 
 // Done with Rob, jumping back to EloquentJS
 
+
+// Summary
+// There are two popular, well-defined approaches to such modules.
+// One is called CommonJS Modules and revolves around a require function that fetches a module by name and returns its interface.
+// The other is called AMD and uses a define function that takes an array of module names and a function and, after loading the modules,
+// runs the function with their interfaces as arguments.
+
+
+
+
